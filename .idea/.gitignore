@@ -1,37 +1,3 @@
 # Default ignored files
 /shelf/
 /workspace.xml
-# Gradle files
-.gradle/
-build/
-
-# Local configuration
-local.properties
-
-# Log files
-*.log
-
-# Android Studio specific
-.idea/
-*.iml
-
-# Generated files
-captures/
-.externalNativeBuild/
-.cxx/
-
-# OS-specific
-.DS_Store
-Thumbs.db
-
-# Keystore files (if you generate signing keys locally)
-*.jks
-*.keystore
-
-# APK / output files
-*.apk
-*.ap_
-*.aab
-
-# Cache
-.cache/
