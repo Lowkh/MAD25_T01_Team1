@@ -1,10 +1,30 @@
 package np.mad.assignment.mad_assignment_t01_team1.data.entity
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity("canteens")
-data class CanteenEntity(
-    @PrimaryKey(autoGenerate = true)val canteenId: Long = 0,
-    val name: String
+@Entity(
+    tableName = "favorites",
+    indices = [Index("userId"), Index("stallId")],
+    foreignKeys = [
+        ForeignKey(
+             UserEntity::class,
+            ["userId"],
+            ["userId"],
+            ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            StallEntity::class,
+            ["stallId"],
+            ["stallId"],
+            ForeignKey.CASCADE
+        )
+    ]
+)
+data class FavoriteEntity(
+    @PrimaryKey(autoGenerate = true) val favoriteId: Long = 0,
+    val userId: Long,
+    val stallId: Long
 )
