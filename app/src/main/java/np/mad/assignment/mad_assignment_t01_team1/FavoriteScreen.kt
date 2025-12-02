@@ -1,7 +1,4 @@
 package np.mad.assignment.mad_assignment_t01_team1
-
-
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
