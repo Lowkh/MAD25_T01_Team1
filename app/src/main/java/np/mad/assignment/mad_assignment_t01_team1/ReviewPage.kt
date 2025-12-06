@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.sp
 import np.mad.assignment.mad_assignment_t01_team1.data.db.AppDatabase
 import np.mad.assignment.mad_assignment_t01_team1.data.entity.ReviewEntity
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -64,9 +63,15 @@ fun ReviewPage(
     val scope = rememberCoroutineScope()
     val reviews: List<ReviewEntity> by reviewsDao.getAllReviewsForStall(stallId).collectAsState(initial = emptyList())
 
+    val reviewCount = reviews.size
+    val averageRating = if (reviewCount > 0) {
+        reviews.map { it.rating }.average()
+    } else {
+        0.0
+    }
     var showDialog by rememberSaveable { mutableStateOf(false) }
     var inputReviewText by rememberSaveable { mutableStateOf("") }
-    var inputRating by rememberSaveable { mutableIntStateOf(5) }
+    var inputRating by rememberSaveable { mutableStateOf(5) }
 
     // Main Container
     Box(
@@ -109,7 +114,7 @@ fun ReviewPage(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "3/5 (2 reviews)",
+                        text = String.format("%.1f/5 (%d reviews)", averageRating, reviewCount),
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -158,7 +163,10 @@ fun ReviewPage(
                 .align(Alignment.BottomEnd)
                 .padding(24.dp)
         ) {
-            Row(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "Add Review")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Review", fontWeight = FontWeight.Bold)
@@ -176,11 +184,17 @@ fun ReviewPage(
                             horizontalArrangement = Arrangement.Center
                         ) {
                             for (i in 1..5) {
-                                IconButton(onClick = { inputRating = i }) {
+                                IconButton(
+                                    onClick = { inputRating = i }
+                                ) {
                                     Icon(
-                                        imageVector = if (i <= inputRating) Icons.Default.Star else Icons.Default.Star,
+                                        imageVector = Icons.Default.Star,
                                         contentDescription = "Star $i",
-                                        tint = Color(0xFFF4B400)
+                                        tint = if (i <= inputRating) { //LLM
+                                            Color(0xFFF4B400)
+                                        } else {
+                                            Color(0xFFF4B400).copy(alpha = 0.2f)
+                                        }
                                     )
                                 }
                             }
@@ -202,7 +216,6 @@ fun ReviewPage(
                         onClick = {
                             if (inputReviewText.isNotBlank()) {
                                 scope.launch(Dispatchers.IO) {
-                                    // TODO: Later, get the REAL User ID and Name from login session
                                     val currentUserId = 1L
                                     val currentUserName = "demo"
 
@@ -212,14 +225,15 @@ fun ReviewPage(
                                         stallId = stallId,
                                         review = inputReviewText,
                                         rating = inputRating,
-                                        date = LocalDate.now()
+                                        date = LocalDate.now().toString()
                                     )
                                     reviewsDao.addReview(newReview)
+                                    launch(Dispatchers.Main) { //LLM
+                                        inputReviewText = ""
+                                        inputRating = 5
+                                        showDialog = false
+                                    }
                                 }
-                                // Reset and Close
-                                inputReviewText = ""
-                                inputRating = 5
-                                showDialog = false
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Black)

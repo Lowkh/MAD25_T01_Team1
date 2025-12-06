@@ -46,7 +46,7 @@ suspend fun seedMockData(db: AppDatabase) = withContext(Dispatchers.IO){
         val name2 = db.userDao().getById(userId1)?.name ?: "Unknown"
         db.reviewDao().addReviews(
             //ReviewEntity(userId = userId, username = name1, review = "Yoo this food is bussin. Unc locked in", rating = 5, stallId = chickenRiceStallId, date = LocalDate.now()),
-            ReviewEntity(userId = userId1, username = name2, review = "It was half-uncooked bro. This uncle trolling", rating = 1, stallId = chickenRiceStallId, date = LocalDate.now()),
+            ReviewEntity(userId = userId1, username = name2, review = "It was half-uncooked bro. This uncle trolling", rating = 1, stallId = chickenRiceStallId, date = "2025-02-16"),
         )
         db.favoriteDao().addFavorites(
             FavoriteEntity(userId = userId, stallId = chickenRiceStallId),

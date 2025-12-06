@@ -6,7 +6,6 @@ import androidx.room.coroutines.createFlow
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performSuspending
 import androidx.sqlite.SQLiteStatement
-import java.time.LocalDate
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -17,7 +16,6 @@ import kotlin.collections.MutableList
 import kotlin.collections.mutableListOf
 import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.Flow
-import np.mad.assignment.mad_assignment_t01_team1.`data`.entity.DateConverters
 import np.mad.assignment.mad_assignment_t01_team1.`data`.entity.ReviewEntity
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -28,8 +26,6 @@ public class ReviewDao_Impl(
   private val __db: RoomDatabase
 
   private val __insertAdapterOfReviewEntity: EntityInsertAdapter<ReviewEntity>
-
-  private val __dateConverters: DateConverters = DateConverters()
   init {
     this.__db = __db
     this.__insertAdapterOfReviewEntity = object : EntityInsertAdapter<ReviewEntity>() {
@@ -42,12 +38,7 @@ public class ReviewDao_Impl(
         statement.bindText(4, entity.username)
         statement.bindText(5, entity.review)
         statement.bindLong(6, entity.rating.toLong())
-        val _tmp: String? = __dateConverters.dateToString(entity.date)
-        if (_tmp == null) {
-          statement.bindNull(7)
-        } else {
-          statement.bindText(7, _tmp)
-        }
+        statement.bindText(7, entity.date)
       }
     }
   }
@@ -96,19 +87,8 @@ public class ReviewDao_Impl(
           _tmpReview = _stmt.getText(_columnIndexOfReview)
           val _tmpRating: Int
           _tmpRating = _stmt.getLong(_columnIndexOfRating).toInt()
-          val _tmpDate: LocalDate
-          val _tmp: String?
-          if (_stmt.isNull(_columnIndexOfDate)) {
-            _tmp = null
-          } else {
-            _tmp = _stmt.getText(_columnIndexOfDate)
-          }
-          val _tmp_1: LocalDate? = __dateConverters.fromString(_tmp)
-          if (_tmp_1 == null) {
-            error("Expected NON-NULL 'java.time.LocalDate', but it was NULL.")
-          } else {
-            _tmpDate = _tmp_1
-          }
+          val _tmpDate: String
+          _tmpDate = _stmt.getText(_columnIndexOfDate)
           _item = ReviewEntity(_tmpReviewId,_tmpStallId,_tmpUserId,_tmpUsername,_tmpReview,_tmpRating,_tmpDate)
           _result.add(_item)
         }

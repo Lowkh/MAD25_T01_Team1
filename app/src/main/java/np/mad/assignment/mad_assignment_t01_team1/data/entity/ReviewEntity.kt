@@ -26,5 +26,5 @@ data class ReviewEntity(
     val username: String,
     val review: String,
     val rating: Int,
-    val date: LocalDate,
+    val date: String,
 )
