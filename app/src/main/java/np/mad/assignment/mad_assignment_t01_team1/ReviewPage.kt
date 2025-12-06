@@ -59,6 +59,8 @@ fun ReviewPage(
     val  db =remember(context){
         AppDatabase.get(context)}
     val reviewsDao = remember { db.reviewDao() }
+    val stallDao = remember { db.stallDao() }
+    val stall by stallDao.getByIdFlow(stallId).collectAsState(initial = null)
     val scope = rememberCoroutineScope()
     val reviews: List<ReviewEntity> by reviewsDao.getAllReviewsForStall(stallId).collectAsState(initial = emptyList())
 
@@ -85,12 +87,15 @@ fun ReviewPage(
                     .height(250.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(R.drawable.pngegg3),
-                    contentDescription = null,
-//                    contentScale = ContentScale.FillBounds,
-                    modifier = Modifier.fillMaxSize().fillMaxWidth())
-                //Text("Food Image Here", color = Color.White)
+                stall?.let { stallEntity ->
+                    Image(
+                        painter = painterResource(stallEntity.imageResId),
+                        contentDescription = stallEntity.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp)
+                    )
+                }
             }
 
             Column(modifier = Modifier.padding(16.dp)) {
@@ -113,18 +118,19 @@ fun ReviewPage(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Chicken Rice",
+                    text = stall?.name ?: "Loading...",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
 
                 Text(
-                    text = "Bussin chicken rice -Uncle",
+                    text = stall?.description ?: "",
                     fontSize = 16.sp,
                     color = Color.Gray,
                     modifier = Modifier.padding(top = 4.dp, bottom = 24.dp)
                 )
+
 
                 reviews.forEach { review ->
                     ReviewCardItem(review)

@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import np.mad.assignment.mad_assignment_t01_team1.FavoriteScreen
+import np.mad.assignment.mad_assignment_t01_team1.R
 import np.mad.assignment.mad_assignment_t01_team1.data.entity.*
 import java.time.LocalDate
 
@@ -32,10 +33,10 @@ suspend fun seedMockData(db: AppDatabase) = withContext(Dispatchers.IO){
         val munchId = canteenIds.getOrNull(2) ?: error("Canteen 'Munch' not found after insert")
 
         db.stallDao().insert(
-            StallEntity(name = "Chicken Rice", canteenId = foodClubId, halal = true),
-            StallEntity(name = "Ban Mian", canteenId = foodClubId, halal = true),
-            StallEntity(name = "Mala Hotpot", canteenId = makanPlaceId, halal = false),
-            StallEntity(name = "Western", canteenId = munchId, halal = false),
+            StallEntity(name = "Chicken Rice",canteenName = "Food Club", canteenId = foodClubId, cuisine = "Asian",imageResId = R.drawable.chicken_rice, description = "A cozy chicken rice food stall offering tender chicken with fragrant rice.", halal = true),
+            StallEntity(name = "Ban Mian", canteenName = "Food Club",canteenId = foodClubId, cuisine = "Asian",imageResId = R.drawable.chicken_rice, description = "A ban mian store", halal = true),
+            StallEntity(name = "Mala Hotpot", canteenName = "Makan Place",canteenId = makanPlaceId, cuisine = "Asian",imageResId = R.drawable.mala_xiangguo, description = "Serving delicious mala xiang guo with a variety of ingredients.",halal = false),
+            StallEntity(name = "Western", canteenName = "Munch", canteenId = munchId, cuisine = "Western", imageResId = R.drawable.western_food,description = "Serving the best western dishes, including pastas, pizzas, and more.", halal = false),
         )
         val chickenRiceStallId = db.stallDao().getByName("Chicken Rice")?.stallId ?: error("Stall 'Chicken Rice' not found after insert")
         val banMianStallId = db.stallDao().getByName("Ban Mian")?.stallId ?: error("Stall 'Chicken Rice' not found after insert")

@@ -109,10 +109,20 @@ fun MainNavigation(
                 selectedCanteen?.let {
                     StallDirectoryScreen(
                         canteen = it, // Pass the selected canteen to filter food stalls
+                        navController = navController,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
+            composable("review/{stallId}") { backStackEntry ->
+                val stallId = backStackEntry.arguments?.getString("stallId")?.toLong() ?: 1L
+
+                ReviewPage(
+                    stallId = stallId,
+                    onCloseClicked = { navController.popBackStack() }
+                )
+            }
+
             composable(AppScreen.Favorite.route) {
                 FavoriteScreen(
                     userId = 2L,

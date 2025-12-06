@@ -26,7 +26,7 @@ interface FavoritesDao{
         SELECT f.favoriteId,
                 s.stallId,
                 s.name AS stallName,
-                s.imageUrl,
+                s.imageResId,
                 s.halal,
                 c.canteenId,
                 c.name AS canteenName
