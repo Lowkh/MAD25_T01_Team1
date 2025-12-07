@@ -1,5 +1,7 @@
 package np.mad.assignment.mad_assignment_t01_team1
 
+import android.content.Context
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -16,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -137,8 +140,37 @@ fun MainNavigation(
                 )
             }
             composable(AppScreen.Profile.route) {
-
+                ProfileScreen(
+                    userId = 2L,
+                    onLogout = {
+                        // Navigate back to Login page
+                        navController.navigate(AppScreen.Login.route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                inclusive = true
+                            }
+                        }
+                    }
+                )
             }
+            composable(AppScreen.Login.route) {
+                val context = LocalContext.current
+                LoginScreen(
+                    onLoginSuccess = { userId: Long ->
+                        val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+                        prefs.edit().putLong("logged_in_user", userId).apply()
+
+                        navController.navigate(AppScreen.Home.route) {
+                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        }
+                    },
+                    onRegisterClick = {
+                        navController.navigate("register")
+                    }
+                )
+            }
+
+
+
         }
     }
 }
