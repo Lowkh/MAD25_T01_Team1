@@ -80,7 +80,6 @@ fun MainNavigation(
                     onNavigateToCanteens = { canteenName ->
                         navController.navigate("stallDirectory/$canteenName")
                     },
-
                     onNavigateToStall = { stallId ->
                         navController.navigate("menu/$stallId")
                     }

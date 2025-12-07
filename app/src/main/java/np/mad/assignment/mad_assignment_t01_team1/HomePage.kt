@@ -32,7 +32,7 @@ val CardOrange = Color(0xFFFFA726)
 @Composable
 fun HomeScreen(
     onNavigateToCanteens: (String) -> Unit,
-    onNavigateToStall: (Long) -> Unit
+    onNavigateToStall: (Long) -> Unit,
 ) {
     val context= LocalContext.current
     val  db =remember(context){
@@ -59,7 +59,7 @@ fun HomeScreen(
         ) {
 
             item {
-                SectionHeader(title = "Popular Canteens", onSeeMore = { onNavigateToCanteens(canteens.first().name) })
+                SectionHeader(title = "Popular Canteens", onSeeMore = { })
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Show the first canteen as the "Featured" one
@@ -72,7 +72,7 @@ fun HomeScreen(
             }
 
             item {
-                SectionHeader(title = "Popular Foods", onSeeMore = {})
+                SectionHeader(title = "Popular Foods", onSeeMore = {onNavigateToCanteens("Food Club")})
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(popularStalls) { stall ->
@@ -82,7 +82,7 @@ fun HomeScreen(
             }
 
             item {
-                SectionHeader(title = "Popular Categories", onSeeMore = {})
+                SectionHeader(title = "Popular Categories", onSeeMore = {onNavigateToCanteens("Food Club")})
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                     items(cuisines) { cuisine ->
