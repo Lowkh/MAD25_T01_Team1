@@ -32,6 +32,7 @@ import kotlinx.coroutines.withContext
 import np.mad.assignment.mad_assignment_t01_team1.data.db.AppDatabase
 import np.mad.assignment.mad_assignment_t01_team1.data.entity.UserEntity
 import np.mad.assignment.mad_assignment_t01_team1.ui.theme.MAD_Assignment_T01_Team1Theme
+import np.mad.assignment.mad_assignment_t01_team1.util.SecurityUtils
 
 class RegisterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,7 +117,8 @@ fun RegisterScreen(
                             }
                         } else {
                             // create user using your existing UserEntity and Dao.upsert()
-                            val newUser = UserEntity(name = trimmedUsername, password = trimmedPassword)
+                            val hashedPassword = SecurityUtils.sha256(trimmedPassword)
+                            val newUser = UserEntity(name = trimmedUsername, password = hashedPassword)
                             val newId = withContext(Dispatchers.IO) {
                                 db.userDao().upsert(newUser)
                             }
