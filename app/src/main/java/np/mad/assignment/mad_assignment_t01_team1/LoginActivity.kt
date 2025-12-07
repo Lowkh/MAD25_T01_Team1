@@ -62,17 +62,7 @@ import np.mad.assignment.mad_assignment_t01_team1.util.SecurityUtils
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        val db = AppDatabase.get(this)
-        val prefs = getSharedPreferences("seed_prefs",MODE_PRIVATE)
-        prefs.edit().remove("mock_seed_done").commit()
-        if(!prefs.getBoolean("mock_seed_done",false)){
-            lifecycleScope.launch(Dispatchers.IO){
-                db.clearAllTables()
-                seedMockData(db)
-                prefs.edit().putBoolean("mock_seed_done",true).apply()
-                Log.d("Seed", "IF Runned")
-            }
-        }
+
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

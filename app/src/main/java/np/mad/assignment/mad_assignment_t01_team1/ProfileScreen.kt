@@ -10,7 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,6 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import np.mad.assignment.mad_assignment_t01_team1.data.db.AppDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 @Composable
@@ -30,10 +36,19 @@ fun ProfileScreen(
     onLogout: () -> Unit
 ) {
     val context = LocalContext.current
+    val db = remember { AppDatabase.get(context) }
 
-    // Get username from database
-    val db = AppDatabase.get(context)
-    val username = remember { "" }
+    var username by remember { mutableStateOf("Loading...") }
+
+    LaunchedEffect(userId) {
+        try {
+            val userFlow = db.userDao().getById(userId)
+            val userEntity = userFlow.firstOrNull()
+            username = userEntity?.name ?: "Unknown User"
+        } catch (e: Exception) {
+            username = "Error"
+        }
+    }
 
     // Top Row: Profile Icon, Username, Logout
     Column(
@@ -59,13 +74,7 @@ fun ProfileScreen(
 
             // Username text (fetched from DB)
             Text(
-                text = runCatching {
-                    CoroutineScope(Dispatchers.IO).launch {
-                        val user = db.userDao().getById(userId)
-                        user?.name ?: "User"
-                    }
-                    "User"
-                }.getOrElse { "User" },
+                text = username,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )

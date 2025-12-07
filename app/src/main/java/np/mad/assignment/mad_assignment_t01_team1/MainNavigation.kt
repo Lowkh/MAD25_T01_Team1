@@ -38,45 +38,47 @@ sealed class AppScreen(val route: String, val label: String, val icon: ImageVect
 @Composable
 fun MainNavigation(
     userId: Long,
+    onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
+    val context = LocalContext.current
     val tabs = listOf(
         AppScreen.Home,
         AppScreen.Canteen,
         AppScreen.Favorite,
         AppScreen.Profile
     )
-
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                val currentBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = currentBackStackEntry?.destination
-
-                tabs.forEach { screen ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                // Keep only one instance of the destination & restore previous state
-                                popUpTo(navController.graph.startDestinationId) {
-                                    saveState = true
+            if (currentRoute != AppScreen.Login.route && currentRoute != "register") {
+                NavigationBar {
+                    val currentDestination = navBackStackEntry?.destination
+                    tabs.forEach { screen ->
+                        val selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(imageVector = screen.icon, contentDescription = screen.label) },
-                        label = { Text(screen.label) }
-                    )
+                            },
+                            icon = { Icon(imageVector = screen.icon, contentDescription = screen.label) },
+                            label = { Text(screen.label) }
+                        )
+                    }
                 }
             }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = AppScreen.Favorite.route,
+            startDestination = AppScreen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(AppScreen.Home.route) {
@@ -144,26 +146,21 @@ fun MainNavigation(
             }
             composable(AppScreen.Profile.route) {
                 ProfileScreen(
-                    userId = 2L,
+                    userId = userId,
                     onLogout = {
-                        // Navigate back to Login page
-                        navController.navigate(AppScreen.Login.route) {
-                            popUpTo(navController.graph.startDestinationId) {
-                                inclusive = true
-                            }
-                        }
+                        onLogout()
                     }
                 )
             }
             composable(AppScreen.Login.route) {
                 val context = LocalContext.current
                 LoginScreen(
-                    onLoginSuccess = { userId: Long ->
+                    onLoginSuccess = { newUserId: Long ->
                         val prefs = context.getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
-                        prefs.edit().putLong("logged_in_user", userId).apply()
+                        prefs.edit().putLong("logged_in_user", newUserId).apply()
 
                         navController.navigate(AppScreen.Home.route) {
-                            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                            popUpTo(AppScreen.Login.route) { inclusive = true }
                         }
                     },
                     onRegisterClick = {
@@ -171,7 +168,16 @@ fun MainNavigation(
                     }
                 )
             }
-
+            composable("register") {
+                RegisterScreen(
+                    onRegisterSuccess = {
+                        navController.navigate(AppScreen.Login.route) {
+                            popUpTo("register") { inclusive = true }
+                        }
+                    },
+                    onCancel = { navController.popBackStack() }
+                )
+            }
 
 
         }
