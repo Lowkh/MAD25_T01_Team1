@@ -108,7 +108,7 @@ class LoginActivity : ComponentActivity() {
 fun LoginScreen(
     onLoginSuccess: (Long) -> Unit,
     onRegisterClick: () -> Unit,
-    contentPadding: PaddingValues,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
