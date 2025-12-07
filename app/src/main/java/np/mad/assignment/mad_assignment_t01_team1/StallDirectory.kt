@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.material3.Icon
@@ -23,7 +24,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import kotlinx.coroutines.launch
 import np.mad.assignment.mad_assignment_t01_team1.data.db.AppDatabase
+import np.mad.assignment.mad_assignment_t01_team1.data.entity.FavoriteEntity
 import np.mad.assignment.mad_assignment_t01_team1.data.entity.ReviewEntity
 import np.mad.assignment.mad_assignment_t01_team1.data.entity.StallEntity
 
@@ -47,37 +50,12 @@ fun StallEntity.toFoodStall(): FoodStall {
         canteen = "" // not needed since we use canteenId now
     )
 }
-//
-//// Sample data for food stalls
-//fun getSampleFoodStalls(): List<FoodStall> {
-//    return listOf(
-//        FoodStall(
-//            name = "Mala Delicacy",
-//            cuisine = "Asian",
-//            imageResId = R.drawable.mala_xiangguo, // Replace with the drawable resource ID
-//            description = "Serving delicious mala xiang guo with a variety of ingredients.",
-//            canteen = "Food Club"
-//        ),
-//        FoodStall(
-//            name = "Western Delights",
-//            cuisine = "Italian",
-//            imageResId = R.drawable.western_food, // Replace with the drawable resource ID
-//            description = "Serving the best western dishes, including pastas, pizzas, and more.",
-//            canteen = "Munch"
-//        ),
-//        FoodStall(
-//            name = "Chicken Rice",
-//            cuisine = "Asian",
-//            imageResId = R.drawable.chicken_rice, // Replace with the drawable resource ID
-//            description = "A cozy chicken rice food stall offering tender chicken with fragrant rice.",
-//            canteen = "Makan Place"
-//        )
-//    )
-//}
+
 
 // Main composable function to display the stall directory
 @Composable
 fun StallDirectoryScreen(
+    userId: Long,
     canteen: Canteen,
     modifier: Modifier = Modifier,
     navController: NavController
@@ -86,11 +64,11 @@ fun StallDirectoryScreen(
     val  db =remember(context){
         AppDatabase.get(context)}
     val stallsDao = remember { db.stallDao() }
+    val favoriteDao = remember { db.favoriteDao() }
     val scope = rememberCoroutineScope()
     val stallsFlow = stallsDao.getByCanteenName(canteen.name)
     val stalls by stallsFlow.collectAsState(initial = emptyList())    // Filter food stalls based on the canteen's name
-
-
+    val favoriteStallIds by favoriteDao.getFavoriteStallIdsForUser(userId).collectAsState(initial = emptyList<Long>())
     LazyColumn(modifier = modifier.padding(16.dp)) {
         item {
             Row(
@@ -115,10 +93,25 @@ fun StallDirectoryScreen(
             }
         }
         items(stalls.size) { index ->
+            val stall = stalls[index].toFoodStall()
+            val isFavorite = favoriteStallIds.contains(stall.stallId)
+
             StallCard(
-                stall = stalls[index].toFoodStall(),
+                stall = stall,
+                isFavorite = isFavorite,
                 onStallClick = { stallId ->
                     navController.navigate("menu/$stallId")
+                },
+                onFavoriteClick = {
+                    scope.launch {
+                        if (isFavorite) {
+                            favoriteDao.removeFavoriteByUserAndStall(userId, stall.stallId)
+                        } else {
+                            favoriteDao.addFavorite(
+                                FavoriteEntity(userId = userId, stallId = stall.stallId)
+                            )
+                        }
+                    }
                 }
             )
         }
@@ -129,8 +122,10 @@ fun StallDirectoryScreen(
 @Composable
 fun StallCard(
     stall: FoodStall,
+    isFavorite: Boolean,
     modifier: Modifier = Modifier,
-    onStallClick: (Long) -> Unit
+    onStallClick: (Long) -> Unit,
+    onFavoriteClick: () -> Unit
 ) {
     Card(
         onClick = { onStallClick(stall.stallId) },
@@ -144,7 +139,6 @@ fun StallCard(
                 .padding(16.dp)
                 .fillMaxWidth()
         ) {
-            // Image display with drawable resource and rounded corners
             Image(
                 painter = painterResource(id = stall.imageResId),
                 contentDescription = "Stall Image",
@@ -155,7 +149,6 @@ fun StallCard(
                     .clip(RoundedCornerShape(16.dp)),
                 contentScale = ContentScale.Crop
             )
-            // Stall name, cuisine, and description
             Text(
                 text = stall.name,
                 style = MaterialTheme.typography.headlineSmall,
@@ -173,15 +166,16 @@ fun StallCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = Color.Black
             )
-            // Favorite icon (heart)
             IconButton(
-                onClick = { /* Handle favorite click */ },
+                onClick = { onFavoriteClick() },
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Icon(
-                    imageVector = Icons.Filled.FavoriteBorder,
+                    imageVector = Icons.Default.Favorite,
+
                     contentDescription = "Favorite",
-                    tint = Color.Red
+
+                    tint = if (isFavorite) Color.Red else Color.LightGray
                 )
             }
         }

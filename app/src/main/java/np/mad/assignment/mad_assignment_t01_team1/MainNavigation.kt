@@ -108,6 +108,7 @@ fun MainNavigation(
                 // Pass the selected canteen data to StallDirectoryScreen
                 selectedCanteen?.let {
                     StallDirectoryScreen(
+                        userId = 2L,
                         canteen = it, // Pass the selected canteen to filter food stalls
                         navController = navController,
                         modifier = Modifier.padding(innerPadding)
@@ -146,15 +147,6 @@ fun MainNavigation(
             composable(AppScreen.Profile.route) {
 
             }
-            // Optional: stall detail route with argument
-            /*
-            composable(
-                route = AppScreen.StallDetail.route,
-                arguments = listOf(navArgument("stallId") { type = NavType.LongType })
-            ) { backStackEntry ->
-                val stallId = backStackEntry.arguments?.getLong("stallId") ?: -1L
-                StallDetailPlaceholder(stallId)
-            }*/
         }
     }
 }
