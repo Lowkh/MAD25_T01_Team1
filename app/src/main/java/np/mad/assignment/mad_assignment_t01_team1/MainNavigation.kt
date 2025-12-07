@@ -34,6 +34,7 @@ sealed class AppScreen(val route: String, val label: String, val icon: ImageVect
 
 @Composable
 fun MainNavigation(
+    userId: Long,
 ) {
     val navController = rememberNavController()
     val tabs = listOf(
@@ -101,16 +102,18 @@ fun MainNavigation(
                 // Pass the selected canteen data to StallDirectoryScreen
                 selectedCanteen?.let {
                     StallDirectoryScreen(
-                        userId = 2L,
+                        userId = userId,
                         canteen = it, // Pass the selected canteen to filter food stalls
                         navController = navController,
                     )
                 }
             }
+
             composable("review/{stallId}") { backStackEntry ->
                 val stallId = backStackEntry.arguments?.getString("stallId")?.toLong() ?: 1L
 
                 ReviewPage(
+                    userId = userId,
                     stallId = stallId,
                     onCloseClicked = { navController.popBackStack() }
                 )
@@ -127,9 +130,9 @@ fun MainNavigation(
             }
             composable(AppScreen.Favorite.route) {
                 FavoriteScreen(
-                    userId = 2L,
+                    userId = userId,
                     onStallClick = { stall ->
-                        navController.navigate("stall/${stall.stallId}")
+                        navController.navigate("menu/${stall.stallId}")
                     },
                     onLoginClick = {
                         navController.navigate((AppScreen.Login.route))

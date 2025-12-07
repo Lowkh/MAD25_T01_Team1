@@ -25,21 +25,12 @@ class MainActivity : ComponentActivity() {
             finish()
             return
         }
-        val db = AppDatabase.get(this)
-        val prefs = getSharedPreferences("seed_prefs",MODE_PRIVATE)
-        prefs.edit().remove("mock_seed_done").commit()
-        if(!prefs.getBoolean("mock_seed_done",false)){
-            lifecycleScope.launch(Dispatchers.IO){
-               db.clearAllTables()
-                seedMockData(db)
-                prefs.edit().putBoolean("mock_seed_done",true).apply()
-                Log.d("Seed", "IF Runned")
-            }
-        }
         enableEdgeToEdge()
         setContent {
             MAD_Assignment_T01_Team1Theme{
-                MainNavigation()
+                MainNavigation(
+                    userId = loggedInUserId,
+                )
             }
         }
     }

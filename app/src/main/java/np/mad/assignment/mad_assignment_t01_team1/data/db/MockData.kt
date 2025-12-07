@@ -51,12 +51,7 @@ suspend fun seedMockData(db: AppDatabase) = withContext(Dispatchers.IO){
         val westernStallId = db.stallDao().getByName("Western")?.stallId ?: error("Stall 'Western' not found after insert")
         val koreanStallId = db.stallDao().getByName("Korean")?.stallId ?: error("Stall 'Korean' not found after insert")
         val riceStallId = db.stallDao().getByName("Rice")?.stallId ?: error("Stall 'Rice' not found after insert")
-        val name1 = db.userDao().getById(userId)?.name ?: "Unknown"
-        val name2 = db.userDao().getById(userId1)?.name ?: "Unknown"
-        db.reviewDao().addReviews(
-            //ReviewEntity(userId = userId, username = name1, review = "Yoo this food is bussin. Unc locked in", rating = 5, stallId = chickenRiceStallId, date = LocalDate.now()),
-            ReviewEntity(userId = userId1, username = name2, review = "It was half-uncooked bro. This uncle trolling", rating = 1, stallId = chickenRiceStallId, date = "2025-02-16"),
-        )
+
         db.dishDao().insert(
             DishEntity(
                 stallId = indonesianStallId,

@@ -2,6 +2,7 @@ package np.mad.assignment.mad_assignment_t01_team1.`data`.dao
 
 import androidx.room.EntityInsertAdapter
 import androidx.room.RoomDatabase
+import androidx.room.coroutines.createFlow
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.performSuspending
 import androidx.sqlite.SQLiteStatement
@@ -12,6 +13,7 @@ import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.reflect.KClass
+import kotlinx.coroutines.flow.Flow
 import np.mad.assignment.mad_assignment_t01_team1.`data`.entity.UserEntity
 
 @Generated(value = ["androidx.room.RoomProcessor"])
@@ -46,9 +48,9 @@ public class UserDao_Impl(
     _result
   }
 
-  public override suspend fun getById(userId: Long): UserEntity? {
+  public override fun getById(userId: Long): Flow<UserEntity?> {
     val _sql: String = "SELECT * FROM users WHERE userId = ? LIMIT 1"
-    return performSuspending(__db, true, false) { _connection ->
+    return createFlow(__db, false, arrayOf("users")) { _connection ->
       val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
         var _argIndex: Int = 1

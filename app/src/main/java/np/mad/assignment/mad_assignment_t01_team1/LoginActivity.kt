@@ -2,6 +2,7 @@ package np.mad.assignment.mad_assignment_t01_team1
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -50,15 +51,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import np.mad.assignment.mad_assignment_t01_team1.data.db.AppDatabase
+import np.mad.assignment.mad_assignment_t01_team1.data.db.seedMockData
 import np.mad.assignment.mad_assignment_t01_team1.ui.theme.MAD_Assignment_T01_Team1Theme
 import np.mad.assignment.mad_assignment_t01_team1.util.SecurityUtils
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val db = AppDatabase.get(this)
+        val prefs = getSharedPreferences("seed_prefs",MODE_PRIVATE)
+        prefs.edit().remove("mock_seed_done").commit()
+        if(!prefs.getBoolean("mock_seed_done",false)){
+            lifecycleScope.launch(Dispatchers.IO){
+                db.clearAllTables()
+                seedMockData(db)
+                prefs.edit().putBoolean("mock_seed_done",true).apply()
+                Log.d("Seed", "IF Runned")
+            }
+        }
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
